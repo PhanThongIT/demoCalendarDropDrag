@@ -16,7 +16,16 @@ const config = {
       id: "event4",
       title: "Event 4"
     }
-  ]
+  ],
+  messages: {
+    requiredMessageTitle: "Title is required!"
+  },
+  textContent: {
+    titleWeb: "Calendar Demo"
+  },
+  actionTypes: {
+    ADD_EVENT: "ADD_EVENT"
+  }
 };
 
 export default config;

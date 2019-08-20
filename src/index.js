@@ -1,9 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
+import App from "./containers/App";
+import config from "../config";
+import { createStore, applyMiddleware } from "redux";
+import thunkMiddleware from "redux-thunk";
+import rootReducer from "./reducers";
+import { Provider } from "react-redux";
 
-const title = "My Minimal React Webpack Babel Setup";
+const store = createStore(
+  rootReducer,
+  undefined,
+  applyMiddleware(thunkMiddleware)
+);
 
-ReactDOM.render(<App title={title} />, document.getElementById("app"));
+ReactDOM.render(
+  <Provider store={store}>
+    <App title={_.get(config.textContent, "titleWeb")} />
+  </Provider>,
+  document.getElementById("app")
+);
 
 module.hot.accept();
