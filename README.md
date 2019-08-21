@@ -1,3 +1,5 @@
+# CALENDAR DEMO - REACTJS - REDUX
+
 # Documents
 
 1. Install source code.
@@ -81,3 +83,49 @@ pakage.json
 ```js
 schedulerLicenseKey = "GPL-My-Project-Is-Open-Source";
 ```
+
+5. Resize for mobile web and disable zoom in web mobile
+
+- Add code for head tag in file index.html
+
+```
+ <meta name="viewport" content="width=device-width, user-scalable=no" />
+```
+
+- Use ngrok.io to connect for device mobile
+
+  Follow : https://ngrok.com/
+
+  After ngrok installed:
+
+  Add config host file with terminal:
+
+```js
+./ngrok http 8080 -host-header="localhost:8080"
+./ngrok http --host-header=rewrite 8080
+```
+
+Connected to http://yourdomain.io
+
+Run build with device app
+
+6. Get data from reducer with mapStateToProps:
+
+```js
+function mapStateToProps(state) {
+  const { eventReducer } = state; // Get object from reducer dispatch to components
+
+  return {
+    eventReducer
+  };
+}
+```
+
+7. Optimaze source and Good performance:
+
+- Reducers: Get data and adding bussiness flow.
+- Actions: Call Api, setup and dispatch data to reducer.
+- Components: Get data from reducer, Show and handle event.
+  Ex: redux.zip file.
+
+# CALENDAR DEMO - REACTJS - REDUX
