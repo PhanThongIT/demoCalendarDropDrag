@@ -8,10 +8,11 @@ class AddEvent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: "",
+      id: "",
+      title: "Test Event",
       errorTitle: "",
-      startTime: "",
-      endTime: ""
+      startTime: "2019-08-09T22:22:00",
+      endTime: "2019-08-10T22:22:00"
     };
   }
 
@@ -51,7 +52,6 @@ class AddEvent extends React.Component {
       );
     } else {
       const callBackData = _.get(this.props, "callBack");
-      console.log(_.get(this.state, "endTime"));
       if (typeof callBackData === "function") {
         const stStartTime = _.get(this.state, "startTime")
           ? new Date(`${_.get(this.state, "startTime")}`)
@@ -88,51 +88,92 @@ class AddEvent extends React.Component {
 
     return (
       propOpen === true && (
-        <div className="p-2">
-          <h5>Create Event</h5>
-          <form onSubmit={this.handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="inputTitle">{"Event title"}</label>
-              <input
-                className={
-                  _.get(this.state, "errorTitle")
-                    ? "form-control is-invalid"
-                    : "form-control"
-                }
-                id="inputTitle"
-                type="text"
-                placeholder="Input event title"
-                value={_.get(this.state, "title")}
-                name="title"
-                onChange={this.handleChange}
-              />
-              {this.renderErrorTitle()}
-            </div>
+        <div
+          className="modal fade"
+          id="exampleModalCenter"
+          tabIndex="-1"
+          role="dialog"
+          aria-labelledby="exampleModalCenterTitle"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="exampleModalLongTitle">
+                  {"Create Event"}
+                </h5>
+                <button
+                  type="button"
+                  className="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="p-2">
+                  <h5>{"Create Event"}</h5>
+                  <div className="mb-3">
+                    <label htmlFor="inputTitle">{"Event title"}</label>
+                    <input
+                      className={
+                        _.get(this.state, "errorTitle")
+                          ? "form-control is-invalid"
+                          : "form-control"
+                      }
+                      id="inputTitle"
+                      type="text"
+                      placeholder="Input event title"
+                      value={_.get(this.state, "title")}
+                      name="title"
+                      onChange={this.handleChange}
+                    />
+                    {this.renderErrorTitle()}
+                  </div>
 
-            <div className="mb-3">
-              <InputMask
-                className={"form-control"}
-                placeholder={"Input event start time"}
-                name={"startTime"}
-                value={startTime}
-                mask="9999-99-99T99:99:00"
-                onChange={this.handleChangeDate}
-              />
-            </div>
+                  <div className="mb-3">
+                    <InputMask
+                      className={"form-control"}
+                      placeholder={"Input event start time"}
+                      name={"startTime"}
+                      value={startTime}
+                      mask="9999-99-99T99:99:00"
+                      onChange={this.handleChangeDate}
+                    />
+                  </div>
 
-            <div className="mb-3">
-              <InputMask
-                className={"form-control"}
-                name={"endTime"}
-                value={endTime}
-                placeholder={"Input event end time"}
-                mask="9999-99-99T99:99:00"
-                onChange={this.handleChangeDate}
-              />
+                  <div className="mb-3">
+                    <InputMask
+                      className={"form-control"}
+                      name={"endTime"}
+                      value={endTime}
+                      placeholder={"Input event end time"}
+                      mask="9999-99-99T99:99:00"
+                      onChange={this.handleChangeDate}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={this.handleSubmit}
+                  type="button"
+                  className="btn btn-primary"
+                  data-dismiss="modal"
+                >
+                  {"Submit"}
+                </button>
+              </div>
             </div>
-
-            <button className="btn btn-primary">{"Submit"}</button>
-          </form>
+          </div>
         </div>
       )
     );

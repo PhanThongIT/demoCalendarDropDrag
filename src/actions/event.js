@@ -15,3 +15,10 @@ export const addEvent = (title, startTime, endTime) => {
 };
 
 // TODO UPDATE Add event
+
+export const updateEvent = data => {
+  return {
+    type: _.get(config.actionTypes, "UPDATE_EVENT"),
+    payload: data
+  };
+};

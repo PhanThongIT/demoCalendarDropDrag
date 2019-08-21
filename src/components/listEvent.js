@@ -16,50 +16,13 @@ class ListEvent extends React.Component {
     return (
       <div
         key={id}
-        className={"fc-event mt-2 card-text"}
+        id={id}
+        className={`fc-event mt-2 card-text event_${id}`}
         title={titleItem}
-        draggable
-        onDragOver={this.handleDragItem}
       >
         {titleItem}
       </div>
     );
-  };
-
-  componentDidMount() {
-    document.addEventListener("DOMContentLoaded", this.handleDragItem);
-  }
-
-  handleDragItem = e => {
-    e.preventDefault();
-    const containerEl = document.getElementById("external-events");
-
-    new Draggable(containerEl, {
-      itemSelector: ".fc-event",
-      eventData: this.handleEvent
-    });
-  };
-
-  handleEvent = info => {
-    const data = {
-      title: info.innerText,
-      start: new Date()
-    };
-    const fnCallBack = _.get(this.props, "callBack");
-
-    if (typeof fnCallBack === "function" && data) {
-      fnCallBack(data);
-    }
-
-    return data;
-  };
-
-  handleCallBack = () => {
-    const fnCallBack = _.get(this.props, "callBack");
-    const data = _.get(this.state, "data");
-    if (typeof fnCallBack === "function" && data) {
-      return fnCallBack(data);
-    }
   };
 
   render() {

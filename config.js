@@ -24,7 +24,8 @@ const config = {
     titleWeb: "Calendar Demo"
   },
   actionTypes: {
-    ADD_EVENT: "ADD_EVENT"
+    ADD_EVENT: "ADD_EVENT",
+    UPDATE_EVENT: "UPDATE_EVENT"
   }
 };
 

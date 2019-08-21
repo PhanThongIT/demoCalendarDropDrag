@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import config from "../../config";
 import ListEvent from "../components/listEvent";
 import { connect } from "react-redux";
-import { addEvent } from "../actions/event";
+import { addEvent, updateEvent } from "../actions/event";
 import AddEvent from "../components/event";
 
 class MainCalendar extends React.Component {
@@ -21,46 +21,25 @@ class MainCalendar extends React.Component {
     this.state = {
       calendarWeekends: true,
       openAddEvent: false,
-      calendarEvents: [
-        // initial event data
-        // { title: "Event Now", start: "2019-08-21T11:11:00" }
-      ]
+      openMenu: false
     };
     this.calendarComponentRef = React.createRef();
   }
 
-  toggleWeekends = () => {
-    const calendarWeekends = _.get(this.state, "calendarWeekends");
-    this.setState({
-      calendarWeekends: !calendarWeekends
-    });
-  };
+  // shouldComponentUpdate(nextProps, nextStates) {
+  //   const nextPropEvents = _.get(nextProps, "eventReducer");
+  //   const currentPropEvents = _.get(this.props, "eventReducer");
 
-  handleCallBack = info => {
-    const stEvents = _.get(this.state, "calendarEvents");
-    const calendarEvents = [...stEvents, { ...info }];
+  //   if (nextPropEvents !== currentPropEvents) {
+  //     return true;
+  //   }
 
-    this.setState({
-      calendarEvents
-    });
-  };
-
-  handledropEvent = info => {
-    const title = _.get(info.event, "title");
-    const getDay = _.get(info.event, "start");
-
-    if (
-      !confirm(
-        `Are you sure about this change ${title} from ${getDay.getFullYear()}/ ${getDay.getDate()}/${getDay.getMonth()}? `
-      )
-    ) {
-      info.revert();
-    }
-  };
+  //   return false;
+  // }
 
   handleShowAddEvent = e => {
     e.preventDefault();
-    this.setState({ openAddEvent: !this.state.openAddEvent });
+    this.setState({ openAddEvent: true });
   };
 
   handleCallBackData = data => {
@@ -73,13 +52,54 @@ class MainCalendar extends React.Component {
       const title = _.get(data, "title");
       const startTime = _.get(data, "start");
       const endTime = _.get(data, "end");
-      const stcalendarEvents = _.get(this.state, "calendarEvents");
-      const calendarEvents = [...stcalendarEvents, data];
 
-      this.setState({
-        calendarEvents
-      });
       disPatch(addEvent(title, startTime, endTime));
+    }
+  };
+
+  handledropEvent = info => {
+    const title = _.get(info.event, "title");
+    const startTime = _.get(info.event, "start");
+    const endTime = _.get(info.event, "end");
+    const idEvent = _.toInteger(_.get(info.event, "id"));
+    const disPatch = _.get(this.props, "dispatch");
+
+    if (typeof disPatch === "function") {
+      const data = {
+        id: idEvent,
+        title: title,
+        start: startTime,
+        end: endTime
+      };
+      disPatch(updateEvent(data));
+    }
+  };
+
+  handleShowMenu = e => {
+    e.preventDefault();
+    this.setState({ openMenu: !this.state.openMenu });
+  };
+
+  renderGroupButton = () => {
+    const openMenu = _.get(this.state, "openMenu");
+    if (openMenu === true) {
+      return (
+        <div
+          className="btn-group w-100 p-1 btn-group-sm"
+          role="group"
+          aria-label="Basic example"
+        >
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            data-toggle="modal"
+            data-target="#exampleModalCenter"
+            onClick={this.handleShowAddEvent}
+          >
+            {"Add Event"}
+          </button>
+        </div>
+      );
     }
   };
 
@@ -87,29 +107,30 @@ class MainCalendar extends React.Component {
     const calendarWeekends = _.get(this.state, "calendarWeekends");
     const dataList = _.get(this.props, "eventReducer");
     const openAddEvent = _.get(this.state, "openAddEvent");
-    const calendarEvents = _.get(this.state, "calendarEvents");
-    //TODO: update event drag end event.
+    const getHeight = window.screen.height - 50;
 
     return (
-      <div className="container p-1 text-center">
-        <h4>DEMO CALENDAR</h4>
+      <div className="container text-center">
+        <div className="row col-12 mt-2 mb-2">
+          <div>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              style={{ float: "left" }}
+              onClick={this.handleShowMenu}
+            >
+              {"Menu"}
+            </button>
+            {this.renderGroupButton()}
+          </div>
+        </div>
         <div className="row">
-          <div className="col-6 col-lg-4 col-sm-12">
-            <ListEvent data={dataList} callBack={this.handleCallBack} />
+          <div className="col-12 col-lg-12 col-sm-12 text-center">
+            {/* <ListEvent data={dataList} /> */}
 
             <AddEvent open={openAddEvent} callBack={this.handleCallBackData} />
           </div>
-          <div className="col-12 col-lg-8 col-md-12 col-sm-12">
-            <div>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={this.handleShowAddEvent}
-              >
-                Add Event
-              </button>
-            </div>
-
+          <div className="col-12 col-lg-12 col-md-12 col-sm-12">
             <FullCalendar
               defaultView="dayGridMonth"
               header={{
@@ -127,9 +148,10 @@ class MainCalendar extends React.Component {
               themeSystem="bootstrap"
               ref={this.calendarComponentRef}
               weekends={calendarWeekends}
-              events={calendarEvents}
+              events={dataList}
               editable={true}
               droppable={true}
+              height={getHeight}
               eventDrop={this.handledropEvent}
             />
           </div>
@@ -145,9 +167,7 @@ MainCalendar.propTypes = {
 
 function mapStateToProps(state) {
   const { eventReducer } = state;
-  const { start, end } = eventReducer;
 
-  console.log("State: ", eventReducer, start, end);
   return {
     eventReducer
   };
