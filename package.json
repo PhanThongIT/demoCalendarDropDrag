@@ -20,6 +20,7 @@
     "@babel/preset-react": "^7.0.0",
     "@fortawesome/fontawesome-free": "^5.10.1",
     "@fullcalendar/bootstrap": "^4.3.0",
+    "@fullcalendar/list": "^4.3.0",
     "babel-loader": "^8.0.6",
     "css-loader": "^3.0.0",
     "lodash": "^4.17.15",
@@ -49,6 +50,7 @@
     "popper": "^1.0.1",
     "popper.js": "^1.15.0",
     "react": "^16.9.0",
+    "react-bootstrap": "^1.0.0-beta.11",
     "react-dom": "^16.9.0"
   }
 }

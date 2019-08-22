@@ -14,6 +14,8 @@ import ListEvent from "../components/listEvent";
 import { connect } from "react-redux";
 import { addEvent, updateEvent } from "../actions/event";
 import AddEvent from "../components/event";
+import list from "@fullcalendar/list";
+import EditEvent from "../components/event/edit";
 
 class MainCalendar extends React.Component {
   constructor(props) {
@@ -21,21 +23,20 @@ class MainCalendar extends React.Component {
     this.state = {
       calendarWeekends: true,
       openAddEvent: false,
-      openMenu: false
+      openMenu: false,
+      openEdit: false,
+      dataEvent: {}
     };
     this.calendarComponentRef = React.createRef();
   }
 
-  // shouldComponentUpdate(nextProps, nextStates) {
-  //   const nextPropEvents = _.get(nextProps, "eventReducer");
-  //   const currentPropEvents = _.get(this.props, "eventReducer");
+  componentDidMount() {
+    const btnDayEl = document.getElementsByClassName("fc-timeGridDay-button");
+    const btnDay = _.get(btnDayEl, "[0]");
+    btnDay.addEventListener("click", this._handleUpdateDate);
+  }
 
-  //   if (nextPropEvents !== currentPropEvents) {
-  //     return true;
-  //   }
-
-  //   return false;
-  // }
+  _handleUpdateDate = () => {};
 
   handleShowAddEvent = e => {
     e.preventDefault();
@@ -75,32 +76,47 @@ class MainCalendar extends React.Component {
     }
   };
 
-  handleShowMenu = e => {
-    e.preventDefault();
-    this.setState({ openMenu: !this.state.openMenu });
+  renderGroupButton = () => {
+    return (
+      <div
+        className="btn-group w-100 p-1 btn-group-sm"
+        role="group"
+        aria-label="Basic example"
+      >
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          data-toggle="modal"
+          data-target="#exampleModalCenter"
+          onClick={this.handleShowAddEvent}
+        >
+          {"Add event"}
+        </button>
+      </div>
+    );
   };
 
-  renderGroupButton = () => {
-    const openMenu = _.get(this.state, "openMenu");
-    if (openMenu === true) {
-      return (
-        <div
-          className="btn-group w-100 p-1 btn-group-sm"
-          role="group"
-          aria-label="Basic example"
-        >
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            data-toggle="modal"
-            data-target="#exampleModalCenter"
-            onClick={this.handleShowAddEvent}
-          >
-            {"Add Event"}
-          </button>
-        </div>
-      );
-    }
+  handleClickEvent = data => {
+    data.jsEvent.preventDefault();
+    this.setState({ openEdit: true });
+    const idEvent = _.toInteger(_.get(data, "event.id"));
+    const startTime = _.get(data, "event.start");
+    const endTime = _.get(data, "event.end");
+    const title = _.get(data, "event.title");
+
+    const info = {
+      id: idEvent,
+      start: startTime,
+      end: endTime,
+      title: title
+    };
+    const dataEvent = { ...this.state.dataEvent, ...info };
+
+    this.setState({ dataEvent });
+  };
+
+  handleEditEvent = () => {
+    this.setState({ openEdit: false });
   };
 
   render() {
@@ -108,43 +124,41 @@ class MainCalendar extends React.Component {
     const dataList = _.get(this.props, "eventReducer");
     const openAddEvent = _.get(this.state, "openAddEvent");
     const getHeight = window.screen.height - 50;
+    const stOpenEdit = _.get(this.state, "openEdit");
+    const stEventData = _.get(this.state, "dataEvent");
 
     return (
       <div className="container text-center">
         <div className="row col-12 mt-2 mb-2">
-          <div>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              style={{ float: "left" }}
-              onClick={this.handleShowMenu}
-            >
-              {"Menu"}
-            </button>
-            {this.renderGroupButton()}
-          </div>
+          <div>{this.renderGroupButton()}</div>
         </div>
         <div className="row">
           <div className="col-12 col-lg-12 col-sm-12 text-center">
-            {/* <ListEvent data={dataList} /> */}
-
             <AddEvent open={openAddEvent} callBack={this.handleCallBackData} />
+            <EditEvent
+              show={stOpenEdit}
+              onHide={this.handleEditEvent}
+              info={stEventData ? stEventData : {}}
+            />
           </div>
           <div className="col-12 col-lg-12 col-md-12 col-sm-12">
             <FullCalendar
+              id={"calendar"}
               defaultView="dayGridMonth"
               header={{
-                left: "prev,next today",
-                center: "title",
-                right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth"
+                left: "prev,next",
+                right: "dayGridMonth,timeGridWeek,timeGridDay"
               }}
               schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
               plugins={[
                 dayGridPlugin,
                 timeGridPlugin,
                 interactionPlugin,
-                bootstrapPlugin
+                bootstrapPlugin,
+                list
               ]}
+              unselectAuto="true"
+              defaultDate={new Date()}
               themeSystem="bootstrap"
               ref={this.calendarComponentRef}
               weekends={calendarWeekends}
@@ -152,7 +166,8 @@ class MainCalendar extends React.Component {
               editable={true}
               droppable={true}
               height={getHeight}
-              eventDrop={this.handledropEvent}
+              drop={this.handledropEvent}
+              eventClick={this.handleClickEvent}
             />
           </div>
         </div>
@@ -167,6 +182,7 @@ MainCalendar.propTypes = {
 
 function mapStateToProps(state) {
   const { eventReducer } = state;
+  console.log("Prop Event eventReducer", eventReducer);
 
   return {
     eventReducer
