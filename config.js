@@ -25,7 +25,13 @@ const config = {
   },
   actionTypes: {
     ADD_EVENT: "ADD_EVENT",
-    UPDATE_EVENT: "UPDATE_EVENT"
+    UPDATE_EVENT: "UPDATE_EVENT",
+    REMOVE_EVENT: "REMOVE_EVENT"
+  },
+  type: {
+    REMOVE: "REMOVE",
+    EDIT: "EDIT",
+    ADD: "ADD"
   }
 };
 

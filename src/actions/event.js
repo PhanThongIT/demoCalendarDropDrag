@@ -22,3 +22,10 @@ export const updateEvent = data => {
     payload: data
   };
 };
+
+export const removeEvent = data => {
+  return {
+    type: _.get(config.actionTypes, "REMOVE_EVENT"),
+    payload: data
+  };
+};

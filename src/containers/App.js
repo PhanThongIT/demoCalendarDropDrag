@@ -11,10 +11,12 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import ListEvent from "../components/listEvent";
 import { connect } from "react-redux";
-import { addEvent, updateEvent } from "../actions/event";
+import { addEvent, updateEvent, removeEvent } from "../actions/event";
 import AddEvent from "../components/event";
 import list from "@fullcalendar/list";
 import EditEvent from "../components/event/edit";
+import config from "../../config";
+import { isMobile } from "react-device-detect";
 
 class MainCalendar extends React.Component {
   constructor(props) {
@@ -29,13 +31,22 @@ class MainCalendar extends React.Component {
     this.calendarComponentRef = React.createRef();
   }
 
-  componentDidMount() {
-    const btnDayEl = document.getElementsByClassName("fc-timeGridDay-button");
-    const btnDay = _.get(btnDayEl, "[0]");
-    btnDay.addEventListener("click", this._handleUpdateDate);
-  }
+  // componentDidMount() {
+  //   const btnDayEl = document.getElementsByClassName("fc-timeGridDay-button");
+  //   const btnDay = _.get(btnDayEl, "[0]");
+  //   btnDay.addEventListener("click", this._handleUpdateDate);
+  // }
 
-  _handleUpdateDate = () => {};
+  // _handleUpdateDate = () => {};
+
+  // shouldComponentUpdate(nextProps, nextStates) {
+  //   const propEvent = _.get(this.props, "eventReducer");
+  //   const nxtPropEvent = _.get(nextProps, "eventReducer");
+  //   if (propEvent !== nxtPropEvent) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   _handleShowAddEvent = e => {
     e.preventDefault();
@@ -95,6 +106,20 @@ class MainCalendar extends React.Component {
     );
   };
 
+  _splitDateTime = stringDate => {
+    if (!stringDate) {
+      return;
+    }
+    const date = new Date(stringDate);
+    // 2019-08-09T22:22:00
+    const month = date.getMonth() + 1;
+    const getFullMonth = 1 < month <= 9 ? `0${month}` : month;
+    const getDay = date.getDate();
+    const getFullDate = getDay <= 9 ? `0${getDay}` : getDay;
+    const result = `${date.getFullYear()}-${getFullMonth}-${getFullDate}T${date.getHours()}:${date.getMinutes()}:00`;
+    return result;
+  };
+
   _handleClickEvent = data => {
     data.jsEvent.preventDefault();
     this.setState({ openEdit: true });
@@ -102,12 +127,11 @@ class MainCalendar extends React.Component {
     const startTime = _.get(data, "event.start");
     const endTime = _.get(data, "event.end");
     const title = _.get(data, "event.title");
-    console.log("Start Time: ", startTime);
 
     const info = {
       id: idEvent,
-      start: startTime,
-      end: endTime,
+      start: this._splitDateTime(startTime),
+      end: this._splitDateTime(endTime),
       title: title
     };
     const dataEvent = { ...this.state.dataEvent, ...info };
@@ -119,6 +143,27 @@ class MainCalendar extends React.Component {
     this.setState({ openEdit: false });
   };
 
+  _handleCallBackEvent = (data, type) => {
+    if (_.isEmpty(data)) {
+      return;
+    }
+
+    const disPatch = _.get(this.props, "dispatch");
+    if (
+      type === _.get(config.type, "EDIT") &&
+      typeof disPatch === "function" &&
+      typeof updateEvent === "function"
+    ) {
+      disPatch(updateEvent(data));
+    } else if (
+      type === _.get(config.type, "REMOVE") &&
+      typeof disPatch === "function" &&
+      typeof removeEvent === "function"
+    ) {
+      disPatch(removeEvent(data));
+    }
+  };
+
   render() {
     const calendarWeekends = _.get(this.state, "calendarWeekends");
     const dataList = _.get(this.props, "eventReducer");
@@ -126,6 +171,18 @@ class MainCalendar extends React.Component {
     const getHeight = window.screen.height - 50;
     const stOpenEdit = _.get(this.state, "openEdit");
     const stEventData = _.get(this.state, "dataEvent");
+    let customeHeader = {};
+    if (isMobile) {
+      customeHeader = {
+        left: "prev,next",
+        right: "timeGridWeek,timeGridDay"
+      };
+    } else {
+      customeHeader = {
+        left: "prev,next",
+        right: "dayGridMonth,timeGridWeek,timeGridDay"
+      };
+    }
 
     return (
       <div className="container text-center">
@@ -139,16 +196,14 @@ class MainCalendar extends React.Component {
               show={stOpenEdit}
               onHide={this._handleEditEvent}
               info={stEventData ? stEventData : {}}
+              callback={this._handleCallBackEvent}
             />
           </div>
           <div className="col-12 col-lg-12 col-md-12 col-sm-12">
             <FullCalendar
               id={"calendar"}
               defaultView="dayGridMonth"
-              header={{
-                left: "prev,next",
-                right: "dayGridMonth,timeGridWeek,timeGridDay"
-              }}
+              header={customeHeader}
               schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
               plugins={[
                 dayGridPlugin,
@@ -162,11 +217,11 @@ class MainCalendar extends React.Component {
               themeSystem="bootstrap"
               ref={this.calendarComponentRef}
               weekends={calendarWeekends}
-              events={dataList}
+              events={[...dataList]}
               editable={true}
               droppable={true}
               height={getHeight}
-              drop={this._handledropEvent}
+              eventDrop={this._handledropEvent}
               eventClick={this._handleClickEvent}
             />
           </div>
@@ -182,7 +237,6 @@ MainCalendar.propTypes = {
 
 function mapStateToProps(state) {
   const { eventReducer } = state;
-  console.log("Prop Event eventReducer", eventReducer);
 
   return {
     eventReducer

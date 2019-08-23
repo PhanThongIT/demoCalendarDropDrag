@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import InputMask from "react-input-mask";
 import config from "../../../config";
+import { type } from "os";
 
 class ModalEdit extends React.Component {
   constructor(props) {
@@ -22,7 +23,7 @@ class ModalEdit extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.info) {
+    if (_.get(nextProps, "info")) {
       this.setState({ info: Object.assign(this.state.info, nextProps.info) });
     }
   }
@@ -32,6 +33,8 @@ class ModalEdit extends React.Component {
     const stTitle = _.get(this.state, "info.title");
     const stStart = _.get(this.state, "info.start");
     const stEnd = _.get(this.state, "info.end");
+    const fnCallBack = _.get(this.props, "callback");
+    const onHideModal = _.get(this.props, "onHide");
 
     if (stTitle === "") {
       this.setState({
@@ -43,10 +46,14 @@ class ModalEdit extends React.Component {
     const data = {
       id: _.get(this.state, "info.id"),
       title: stTitle,
-      start: stStart ? stStart : new Date(),
-      end: stEnd ? stEnd : new Date()
+      start: stStart ? new Date(stStart) : new Date(),
+      end: stEnd ? new Date(stEnd) : new Date()
     };
-    console.log("Data callback: ", data);
+
+    if (typeof fnCallBack === "function" && typeof onHideModal === "function") {
+      fnCallBack(data, _.get(config.type, "EDIT"));
+      onHideModal();
+    }
   };
 
   _handleOnChange = e => {
@@ -68,6 +75,22 @@ class ModalEdit extends React.Component {
       return <div className="invalid-feedback">{errorTitle}</div>;
     } else {
       return undefined;
+    }
+  };
+
+  _handleRemove = e => {
+    e.preventDefault();
+    const fnCallBack = _.get(this.props, "callback");
+    const onHideModal = _.get(this.props, "onHide");
+    const id = _.get(this.state, "info.id");
+
+    if (typeof fnCallBack === "function" && typeof onHideModal === "function") {
+      const data = {
+        id: id
+      };
+
+      fnCallBack(data, _.get(config.type, "REMOVE"));
+      onHideModal();
     }
   };
 
@@ -138,7 +161,9 @@ class ModalEdit extends React.Component {
 
         <Modal.Footer>
           <Button onClick={onHideModal}>{"Close"}</Button>
-          <Button variant="danger">{"Delete"}</Button>
+          <Button variant="danger" onClick={this._handleRemove}>
+            {"Delete"}
+          </Button>
           <Button variant="success" onClick={this._handleEdit}>
             {"Edit"}
           </Button>
@@ -149,7 +174,9 @@ class ModalEdit extends React.Component {
 }
 ModalEdit.propTypes = {
   onHide: PropTypes.func,
-  show: PropTypes.bool
+  show: PropTypes.bool,
+  callback: PropTypes.func,
+  info: PropTypes.Object
 };
 
 export default ModalEdit;
