@@ -27,7 +27,7 @@ class ModalEdit extends React.Component {
     }
   }
 
-  handleEdit = e => {
+  _handleEdit = e => {
     e.preventDefault();
     const stTitle = _.get(this.state, "info.title");
     const stStart = _.get(this.state, "info.start");
@@ -49,7 +49,7 @@ class ModalEdit extends React.Component {
     console.log("Data callback: ", data);
   };
 
-  handleOnChange = e => {
+  _handleOnChange = e => {
     const nameEl = _.get(e.target, "name");
     const value = _.get(e.target, "value");
 
@@ -62,7 +62,7 @@ class ModalEdit extends React.Component {
     });
   };
 
-  renderErrorTitle = () => {
+  _renderErrorTitle = () => {
     const errorTitle = _.get(this.state, "errorTitle");
     if (errorTitle !== "") {
       return <div className="invalid-feedback">{errorTitle}</div>;
@@ -100,10 +100,10 @@ class ModalEdit extends React.Component {
               placeholder="Input title event"
               value={info.title ? _.get(info, "title") : ""}
               name={"title"}
-              onChange={this.handleOnChange}
+              onChange={this._handleOnChange}
             />
           </InputGroup>
-          {this.renderErrorTitle()}
+          {this._renderErrorTitle()}
 
           <InputGroup className="mb-3">
             <InputGroup.Prepend>
@@ -116,7 +116,7 @@ class ModalEdit extends React.Component {
               name={"start"}
               value={info.start ? _.get(info, "start") : ""}
               mask="9999-99-99T99:99:00"
-              onChange={this.handleOnChange}
+              onChange={this._handleOnChange}
             />
           </InputGroup>
 
@@ -131,7 +131,7 @@ class ModalEdit extends React.Component {
               value={info.end ? _.get(info, "end") : ""}
               placeholder={"Input event end time (YYYY/MM/DDTHH:MM:SS)"}
               mask="9999-99-99T99:99:00"
-              onChange={this.handleOnChange}
+              onChange={this._handleOnChange}
             />
           </InputGroup>
         </Modal.Body>
@@ -139,7 +139,7 @@ class ModalEdit extends React.Component {
         <Modal.Footer>
           <Button onClick={onHideModal}>{"Close"}</Button>
           <Button variant="danger">{"Delete"}</Button>
-          <Button variant="success" onClick={this.handleEdit}>
+          <Button variant="success" onClick={this._handleEdit}>
             {"Edit"}
           </Button>
         </Modal.Footer>

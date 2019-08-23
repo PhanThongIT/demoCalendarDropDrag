@@ -9,7 +9,7 @@ class ListEvent extends React.Component {
     this.state = {};
   }
 
-  renderItem = item => {
+  _renderItem = item => {
     const titleItem = _.get(item, "title");
     const id = _.get(item, "id");
 
@@ -34,7 +34,7 @@ class ListEvent extends React.Component {
         style={{ width: "18rem" }}
       >
         <p className="text-center text-uppercase">{"menu"}</p>
-        <div className="card-body">{listData.map(this.renderItem)}</div>
+        <div className="card-body">{listData.map(this._renderItem)}</div>
       </div>
     );
   }

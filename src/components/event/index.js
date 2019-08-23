@@ -16,7 +16,7 @@ class AddEvent extends React.Component {
     };
   }
 
-  handleChange = e => {
+  _handleChange = e => {
     e.preventDefault();
     const valueTitle = _.get(e.target, "value");
     const targetName = _.get(e.target, "name");
@@ -29,7 +29,7 @@ class AddEvent extends React.Component {
     }
   };
 
-  renderErrorTitle = () => {
+  _renderErrorTitle = () => {
     const errorTitle = _.get(this.state, "errorTitle");
     if (!_.isNull(errorTitle)) {
       return <div className="invalid-feedback">{errorTitle}</div>;
@@ -38,7 +38,7 @@ class AddEvent extends React.Component {
     }
   };
 
-  handleSubmit = e => {
+  _handleSubmit = e => {
     e.preventDefault();
     const stTitle = _.get(this.state, "title");
     if (stTitle.length === 0) {
@@ -71,7 +71,7 @@ class AddEvent extends React.Component {
     }
   };
 
-  handleChangeDate = e => {
+  _handleChangeDate = e => {
     e.preventDefault();
     const nameEl = _.get(e.target, "name");
     const valueEl = _.get(e.target, "value");
@@ -127,9 +127,9 @@ class AddEvent extends React.Component {
                       placeholder="Input event title"
                       value={_.get(this.state, "title")}
                       name="title"
-                      onChange={this.handleChange}
+                      onChange={this._handleChange}
                     />
-                    {this.renderErrorTitle()}
+                    {this._renderErrorTitle()}
                   </div>
 
                   <div className="mb-3">
@@ -139,7 +139,7 @@ class AddEvent extends React.Component {
                       name={"startTime"}
                       value={startTime}
                       mask="9999-99-99T99:99:00"
-                      onChange={this.handleChangeDate}
+                      onChange={this._handleChangeDate}
                     />
                   </div>
 
@@ -150,7 +150,7 @@ class AddEvent extends React.Component {
                       value={endTime}
                       placeholder={"Input event end time"}
                       mask="9999-99-99T99:99:00"
-                      onChange={this.handleChangeDate}
+                      onChange={this._handleChangeDate}
                     />
                   </div>
                 </div>
@@ -161,10 +161,10 @@ class AddEvent extends React.Component {
                   className="btn btn-secondary"
                   data-dismiss="modal"
                 >
-                  Close
+                  {"Close"}
                 </button>
                 <button
-                  onClick={this.handleSubmit}
+                  onClick={this._handleSubmit}
                   type="button"
                   className="btn btn-primary"
                   data-dismiss="modal"

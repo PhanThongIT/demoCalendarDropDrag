@@ -9,7 +9,6 @@ import "@fullcalendar/daygrid/main.css";
 import "@fullcalendar/timegrid/main.css";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import config from "../../config";
 import ListEvent from "../components/listEvent";
 import { connect } from "react-redux";
 import { addEvent, updateEvent } from "../actions/event";
@@ -38,12 +37,12 @@ class MainCalendar extends React.Component {
 
   _handleUpdateDate = () => {};
 
-  handleShowAddEvent = e => {
+  _handleShowAddEvent = e => {
     e.preventDefault();
     this.setState({ openAddEvent: true });
   };
 
-  handleCallBackData = data => {
+  _handleCallBackData = data => {
     if (!data) {
       return;
     }
@@ -58,7 +57,7 @@ class MainCalendar extends React.Component {
     }
   };
 
-  handledropEvent = info => {
+  _handledropEvent = info => {
     const title = _.get(info.event, "title");
     const startTime = _.get(info.event, "start");
     const endTime = _.get(info.event, "end");
@@ -76,7 +75,7 @@ class MainCalendar extends React.Component {
     }
   };
 
-  renderGroupButton = () => {
+  _renderGroupButton = () => {
     return (
       <div
         className="btn-group w-100 p-1 btn-group-sm"
@@ -88,7 +87,7 @@ class MainCalendar extends React.Component {
           className="btn btn-primary btn-sm"
           data-toggle="modal"
           data-target="#exampleModalCenter"
-          onClick={this.handleShowAddEvent}
+          onClick={this._handleShowAddEvent}
         >
           {"Add event"}
         </button>
@@ -96,13 +95,14 @@ class MainCalendar extends React.Component {
     );
   };
 
-  handleClickEvent = data => {
+  _handleClickEvent = data => {
     data.jsEvent.preventDefault();
     this.setState({ openEdit: true });
     const idEvent = _.toInteger(_.get(data, "event.id"));
     const startTime = _.get(data, "event.start");
     const endTime = _.get(data, "event.end");
     const title = _.get(data, "event.title");
+    console.log("Start Time: ", startTime);
 
     const info = {
       id: idEvent,
@@ -115,7 +115,7 @@ class MainCalendar extends React.Component {
     this.setState({ dataEvent });
   };
 
-  handleEditEvent = () => {
+  _handleEditEvent = () => {
     this.setState({ openEdit: false });
   };
 
@@ -130,14 +130,14 @@ class MainCalendar extends React.Component {
     return (
       <div className="container text-center">
         <div className="row col-12 mt-2 mb-2">
-          <div>{this.renderGroupButton()}</div>
+          <div>{this._renderGroupButton()}</div>
         </div>
         <div className="row">
           <div className="col-12 col-lg-12 col-sm-12 text-center">
-            <AddEvent open={openAddEvent} callBack={this.handleCallBackData} />
+            <AddEvent open={openAddEvent} callBack={this._handleCallBackData} />
             <EditEvent
               show={stOpenEdit}
-              onHide={this.handleEditEvent}
+              onHide={this._handleEditEvent}
               info={stEventData ? stEventData : {}}
             />
           </div>
@@ -166,8 +166,8 @@ class MainCalendar extends React.Component {
               editable={true}
               droppable={true}
               height={getHeight}
-              drop={this.handledropEvent}
-              eventClick={this.handleClickEvent}
+              drop={this._handledropEvent}
+              eventClick={this._handleClickEvent}
             />
           </div>
         </div>
