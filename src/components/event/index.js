@@ -3,6 +3,8 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import config from "../../../config";
 import InputMask from "react-input-mask";
+import $ from "jquery";
+import { isMobile } from "react-device-detect";
 
 class AddEvent extends React.Component {
   constructor(props) {
@@ -10,9 +12,10 @@ class AddEvent extends React.Component {
     this.state = {
       id: "",
       title: "Test Event",
+      startTime: "2019-08-32T22:22:00",
+      endTime: "2019-08-56T22:22:00",
       errorTitle: "",
-      startTime: "2019-08-09T22:22:00",
-      endTime: "2019-08-10T22:22:00"
+      errorRangeDate: ""
     };
   }
 
@@ -40,6 +43,10 @@ class AddEvent extends React.Component {
 
   _handleSubmit = e => {
     e.preventDefault();
+    if (typeof window.ReactNativeWebView !== "undefined") {
+      window.ReactNativeWebView.postMessage("asdada");
+    }
+
     const stTitle = _.get(this.state, "title");
     if (stTitle.length === 0) {
       this.setState(
@@ -59,12 +66,21 @@ class AddEvent extends React.Component {
         const stEndTime = _.get(this.state, "endTime")
           ? new Date(`${_.get(this.state, "endTime")}`)
           : new Date();
+
+        if (stStartTime > stEndTime || stEndTime - stStartTime < 0) {
+          this.setState({
+            errorRangeDate: _.get(config.messages, "errorRangeLimitDate")
+          });
+          return;
+        }
+
         const data = {
           title: stTitle,
           start: stStartTime,
           end: stEndTime,
           allDay: false
         };
+        window.$("#exampleModalCenter").modal("hide");
 
         return callBackData(data);
       }
@@ -85,6 +101,7 @@ class AddEvent extends React.Component {
     const propOpen = _.get(this.props, "open");
     const startTime = _.get(this.state, "startTime");
     const endTime = _.get(this.state, "endTime");
+    const errorRangeDate = _.get(this.state, "errorRangeDate");
 
     return (
       propOpen === true && (
@@ -134,13 +151,20 @@ class AddEvent extends React.Component {
 
                   <div className="mb-3">
                     <InputMask
-                      className={"form-control"}
+                      className={
+                        _.get(this.state, "errorRangeDate")
+                          ? "form-control is-invalid"
+                          : "form-control"
+                      }
                       placeholder={"Input event start time"}
                       name={"startTime"}
                       value={startTime}
                       mask="9999-99-99T99:99:00"
                       onChange={this._handleChangeDate}
                     />
+                    {errorRangeDate && (
+                      <div className="invalid-feedback">{errorRangeDate}</div>
+                    )}
                   </div>
 
                   <div className="mb-3">
@@ -167,7 +191,6 @@ class AddEvent extends React.Component {
                   onClick={this._handleSubmit}
                   type="button"
                   className="btn btn-primary"
-                  data-dismiss="modal"
                 >
                   {"Submit"}
                 </button>

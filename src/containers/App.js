@@ -31,22 +31,15 @@ class MainCalendar extends React.Component {
     this.calendarComponentRef = React.createRef();
   }
 
-  // componentDidMount() {
-  //   const btnDayEl = document.getElementsByClassName("fc-timeGridDay-button");
-  //   const btnDay = _.get(btnDayEl, "[0]");
-  //   btnDay.addEventListener("click", this._handleUpdateDate);
-  // }
+  componentDidMount() {
+    const btnDayEl = document.getElementsByClassName("fc-timeGridDay-button");
+    const btnDay = _.get(btnDayEl, "[0]");
+    btnDay.addEventListener("click", this._handleUpdateDate);
+  }
 
-  // _handleUpdateDate = () => {};
-
-  // shouldComponentUpdate(nextProps, nextStates) {
-  //   const propEvent = _.get(this.props, "eventReducer");
-  //   const nxtPropEvent = _.get(nextProps, "eventReducer");
-  //   if (propEvent !== nxtPropEvent) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
+  _handleUpdateDate = () => {
+    // window.alert("Show messages");
+  };
 
   _handleShowAddEvent = e => {
     e.preventDefault();
@@ -116,7 +109,12 @@ class MainCalendar extends React.Component {
     const getFullMonth = 1 < month <= 9 ? `0${month}` : month;
     const getDay = date.getDate();
     const getFullDate = getDay <= 9 ? `0${getDay}` : getDay;
-    const result = `${date.getFullYear()}-${getFullMonth}-${getFullDate}T${date.getHours()}:${date.getMinutes()}:00`;
+    const hours = date.getHours();
+    const validHours = hours <= 9 ? `0${hours}` : hours;
+    const minutes = date.getMinutes();
+    const validMinutes = minutes <= 9 ? `0${minutes}` : minutes;
+
+    const result = `${date.getFullYear()}-${getFullMonth}-${getFullDate}T${validHours}:${validMinutes}:00`;
     return result;
   };
 
@@ -172,16 +170,19 @@ class MainCalendar extends React.Component {
     const stOpenEdit = _.get(this.state, "openEdit");
     const stEventData = _.get(this.state, "dataEvent");
     let customeHeader = {};
+    let defaultView = "";
     if (isMobile) {
       customeHeader = {
         left: "prev,next",
-        right: "timeGridWeek,timeGridDay"
+        right: "dayGridMonth,timeGridWeek,timeGridDay"
       };
+      defaultView = "timeGridWeek";
     } else {
       customeHeader = {
         left: "prev,next",
         right: "dayGridMonth,timeGridWeek,timeGridDay"
       };
+      defaultView = "dayGridMonth";
     }
 
     return (
@@ -190,7 +191,7 @@ class MainCalendar extends React.Component {
           <div>{this._renderGroupButton()}</div>
         </div>
         <div className="row">
-          <div className="col-12 col-lg-12 col-sm-12 text-center">
+          <div className="text-center">
             <AddEvent open={openAddEvent} callBack={this._handleCallBackData} />
             <EditEvent
               show={stOpenEdit}
@@ -199,10 +200,9 @@ class MainCalendar extends React.Component {
               callback={this._handleCallBackEvent}
             />
           </div>
-          <div className="col-12 col-lg-12 col-md-12 col-sm-12">
+          <div id="calendar">
             <FullCalendar
-              id={"calendar"}
-              defaultView="dayGridMonth"
+              defaultView={defaultView}
               header={customeHeader}
               schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
               plugins={[
@@ -215,8 +215,13 @@ class MainCalendar extends React.Component {
               unselectAuto="true"
               defaultDate={new Date()}
               themeSystem="bootstrap"
+              selectable="true"
+              selectHelper="true"
               ref={this.calendarComponentRef}
               weekends={calendarWeekends}
+              longPressDelay={500}
+              eventLongPressDelay={500}
+              selectLongPressDelay={2000}
               events={[...dataList]}
               editable={true}
               droppable={true}

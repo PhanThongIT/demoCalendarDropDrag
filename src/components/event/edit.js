@@ -11,13 +11,13 @@ import {
 } from "react-bootstrap";
 import InputMask from "react-input-mask";
 import config from "../../../config";
-import { type } from "os";
 
 class ModalEdit extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       errorTitle: "",
+      errorRangeDate: "",
       info: {}
     };
   }
@@ -31,8 +31,12 @@ class ModalEdit extends React.Component {
   _handleEdit = e => {
     e.preventDefault();
     const stTitle = _.get(this.state, "info.title");
-    const stStart = _.get(this.state, "info.start");
-    const stEnd = _.get(this.state, "info.end");
+    const stStart = _.get(this.state, "info.start")
+      ? new Date(_.get(this.state, "info.start"))
+      : new Date();
+    const stEnd = _.get(this.state, "info.end")
+      ? new Date(_.get(this.state, "info.end"))
+      : new Date();
     const fnCallBack = _.get(this.props, "callback");
     const onHideModal = _.get(this.props, "onHide");
 
@@ -41,18 +45,25 @@ class ModalEdit extends React.Component {
         errorTitle: _.get(config.messages, "requiredMessageTitle")
       });
       return;
+    } else if (stStart > stEnd || stEnd - stStart < 0) {
+      this.setState({
+        errorRangeDate: _.get(config.messages, "errorRangeLimitDate")
+      });
+      return;
     }
 
     const data = {
       id: _.get(this.state, "info.id"),
       title: stTitle,
-      start: stStart ? new Date(stStart) : new Date(),
-      end: stEnd ? new Date(stEnd) : new Date()
+      start: stStart,
+      end: stEnd
     };
 
     if (typeof fnCallBack === "function" && typeof onHideModal === "function") {
-      fnCallBack(data, _.get(config.type, "EDIT"));
-      onHideModal();
+      this.setState({ errorTitle: "", errorRangeDate: "" }, () => {
+        fnCallBack(data, _.get(config.type, "EDIT"));
+        onHideModal();
+      });
     }
   };
 
@@ -61,7 +72,7 @@ class ModalEdit extends React.Component {
     const value = _.get(e.target, "value");
 
     if (nameEl === "title" && value !== "") {
-      this.setState({ errorTitle: "" });
+      this.setState({ errorTitle: "", errorRangeDate: "" });
     }
 
     this.setState({
@@ -71,8 +82,19 @@ class ModalEdit extends React.Component {
 
   _renderErrorTitle = () => {
     const errorTitle = _.get(this.state, "errorTitle");
+    const errorRangeDate = _.get(this.state, "errorRangeDate");
     if (errorTitle !== "") {
-      return <div className="invalid-feedback">{errorTitle}</div>;
+      return (
+        <span style={{ color: "red", alignContent: "centered" }}>
+          {errorTitle}
+        </span>
+      );
+    } else if (errorRangeDate !== "") {
+      return (
+        <span style={{ color: "red", alignContent: "centered" }}>
+          {errorRangeDate}
+        </span>
+      );
     } else {
       return undefined;
     }
@@ -88,9 +110,10 @@ class ModalEdit extends React.Component {
       const data = {
         id: id
       };
-
-      fnCallBack(data, _.get(config.type, "REMOVE"));
-      onHideModal();
+      this.setState({ errorTitle: "", errorRangeDate: "" }, () => {
+        fnCallBack(data, _.get(config.type, "REMOVE"));
+        onHideModal();
+      });
     }
   };
 
@@ -113,6 +136,8 @@ class ModalEdit extends React.Component {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {this._renderErrorTitle()}
+
           <InputGroup className="mb-3">
             <InputGroup.Prepend>
               <InputGroup.Text id="title">{"Title"}</InputGroup.Text>
@@ -126,7 +151,6 @@ class ModalEdit extends React.Component {
               onChange={this._handleOnChange}
             />
           </InputGroup>
-          {this._renderErrorTitle()}
 
           <InputGroup className="mb-3">
             <InputGroup.Prepend>
