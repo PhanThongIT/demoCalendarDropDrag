@@ -7,6 +7,7 @@ import bootstrapPlugin from "@fullcalendar/bootstrap";
 import "@fullcalendar/core/main.css";
 import "@fullcalendar/daygrid/main.css";
 import "@fullcalendar/timegrid/main.css";
+import "@fullcalendar/core/main";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import ListEvent from "../components/listEvent";
@@ -38,7 +39,8 @@ class MainCalendar extends React.Component {
   }
 
   _handleUpdateDate = () => {
-    // window.alert("Show messages");
+    let calendarApi = this.calendarComponentRef.current.getApi();
+    calendarApi.today();
   };
 
   _handleShowAddEvent = e => {
@@ -193,6 +195,7 @@ class MainCalendar extends React.Component {
         <div className="row">
           <div className="text-center">
             <AddEvent open={openAddEvent} callBack={this._handleCallBackData} />
+
             <EditEvent
               show={stOpenEdit}
               onHide={this._handleEditEvent}

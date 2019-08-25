@@ -131,8 +131,13 @@ class AddEvent extends React.Component {
               <div className="modal-body">
                 <div className="p-2">
                   <h5>{"Create Event"}</h5>
-                  <div className="mb-3">
-                    <label htmlFor="inputTitle">{"Event title"}</label>
+
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">
+                        Title
+                      </span>
+                    </div>
                     <input
                       className={
                         _.get(this.state, "errorTitle")
@@ -145,11 +150,17 @@ class AddEvent extends React.Component {
                       value={_.get(this.state, "title")}
                       name="title"
                       onChange={this._handleChange}
+                      aria-describedby="basic-addon1"
                     />
                     {this._renderErrorTitle()}
                   </div>
 
-                  <div className="mb-3">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text " id="inputStartTime">
+                        {"Start time"}
+                      </span>
+                    </div>
                     <InputMask
                       className={
                         _.get(this.state, "errorRangeDate")
@@ -167,7 +178,12 @@ class AddEvent extends React.Component {
                     )}
                   </div>
 
-                  <div className="mb-3">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputStartTime">
+                        {"Start time"}
+                      </span>
+                    </div>
                     <InputMask
                       className={"form-control"}
                       name={"endTime"}
