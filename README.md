@@ -128,4 +128,49 @@ function mapStateToProps(state) {
 - Components: Get data from reducer, Show and handle event.
   Ex: redux.zip file.
 
+8. Handle Api Calendar - Handle someMethod():
+
+```js
+export default class DemoApp extends React.Component {
+  calendarRef = React.createRef();
+
+  render() {
+    return <FullCalendar ref={this.calendarRef} plugins={[dayGridPlugin]} />;
+  }
+
+  someMethod = () => {
+    let calendarApi = this.calendarRef.current.getApi();
+    calendarApi.next(); // Some method call API to source
+  };
+}
+```
+
+9. Handle callback data:
+
+```js
+import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClick
+
+export default class DemoApp extends React.Component {
+  render() {
+    return (
+      <FullCalendar
+        dateClick={this.handleDateClick}
+        plugins={[dayGridPlugin, interactionPlugin]}
+      />
+    );
+  }
+
+  handleDateClick = arg => {
+    window.alert("Hello, We are Nam Long Software! ");
+  };
+}
+```
+
+10. Documents and Examples:
+
+```js
+ReactJS: https://github.com/fullcalendar/fullcalendar-react
+Calendar boostrap: https://fullcalendar.io/docs/bootstrap-theme
+```
+
 # CALENDAR DEMO - REACTJS - REDUX

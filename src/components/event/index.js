@@ -11,9 +11,9 @@ class AddEvent extends React.Component {
     super(props);
     this.state = {
       id: "",
-      title: "Test Event",
-      startTime: "2019-08-32T22:22:00",
-      endTime: "2019-08-56T22:22:00",
+      title: "",
+      startTime: "2019-08-26T11:00:00",
+      endTime: "2019-08-27T20:00:00",
       errorTitle: "",
       errorRangeDate: ""
     };
