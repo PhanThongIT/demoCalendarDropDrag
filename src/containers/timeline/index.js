@@ -14,6 +14,7 @@ import {
   createLink
 } from "../../actions/gantt";
 import config from "../../../config";
+import { isMobile, isTablet } from "react-device-detect";
 
 class TimeLines extends React.Component {
   constructor(props) {
@@ -24,13 +25,16 @@ class TimeLines extends React.Component {
       selectedItem: null,
       timelineMode: "",
       nonEditableName: false,
-      itemHeight: 20
+      itemHeight: 35,
+      errorLink: false
     };
   }
 
   componentDidMount() {
+    this._fixedGridContent();
     const listModeGantts = _.get(config, "modeGantt");
     let modeGantt = "";
+
     if (!_.isEmpty(listModeGantts)) {
       const defaultMode = _.get(listModeGantts[0], "value");
       modeGantt = defaultMode;
@@ -41,10 +45,45 @@ class TimeLines extends React.Component {
     this.setState({ timelineMode: modeGantt });
   }
 
+  shouldComponentUpdate(nextProps, nextStates) {
+    const propLinks = _.get(this.props, "links");
+    const nxtPropLinks = _.get(nextProps, "links");
+    const propsData = _.get(this.props, "data");
+    const nxtPropsData = _.get(nextProps, "data");
+
+    console.log("Props", nxtPropLinks, nxtPropsData);
+    if (propLinks !== nxtPropLinks || propsData !== nxtPropsData) {
+      return true;
+    }
+    return false;
+  }
+
+  componentDidUpdate() {
+    const heightMainEle = document.getElementsByClassName(
+      "time-line-container"
+    );
+    const heightMain = _.get(heightMainEle, "[0]");
+    const screenHeight = screen.height - 120;
+
+    if (heightMain && heightMain.clientHeight >= screenHeight) {
+      console.log(heightMain.clientHeight, screenHeight);
+      heightMain.style.height = `${screenHeight}px`;
+    }
+  }
+
+  _fixedGridContent = () => {
+    const gridEle = document.getElementsByClassName("timeLine-side-main");
+    const gridTimeLine = _.get(gridEle, "[0]");
+
+    if (gridTimeLine && isMobile) {
+      gridTimeLine.style.width = "50px";
+    }
+  };
+
   _handleAddTimeline = e => {
     e.preventDefault();
     const dateStart = new Date();
-    const dateEnd = new Date("Aug 28 2019 17:40:08 GMT+0700") + 3;
+    const dateEnd = new Date("Aug 30 2019 17:40:08 GMT+0700");
     const data = {
       start: dateStart,
       end: dateEnd
@@ -66,26 +105,47 @@ class TimeLines extends React.Component {
   _onUpdateTask = (item, dataChanged) => {
     const fnDispatch = _.get(this.props, "dispatch");
     if (item && dataChanged && typeof fnDispatch === "function") {
-      fnDispatch(updateTask(item, dataChanged));
+      if (
+        new Date(`${dataChanged.end}`) - new Date(`${dataChanged.start}`) <
+        0
+      ) {
+        this.setState({ errorLink: true }, () => {
+          window.alert("Valid timeline!");
+          return;
+        });
+      } else {
+        this.setState({ errorLink: false });
+        fnDispatch(updateTask(item, dataChanged));
+      }
     }
   };
 
   _onCreateLink = item => {
-    const fnDispatch = _.get(this.props, "dispatch");
-    if (item && typeof fnDispatch === "function") {
-      fnDispatch(createLink(item));
+    console.log(item);
+    if (this.state.errorLink === false) {
+      const fnDispatch = _.get(this.props, "dispatch");
+      if (item && typeof fnDispatch === "function") {
+        fnDispatch(createLink(item));
+      }
     }
   };
 
   _renderButton = (item, index) => {
+    const activeButton = {
+      backgroundColor: "bisque",
+      borderColor: "bisque",
+      color: "black"
+    };
+    const stModeGantt = _.get(this.state, "timelineMode");
+
     return (
       <button
         key={index}
         type="button"
-        className="btn btn-outline-primary"
+        className="btn btn-outline-primary btn-sm ml-1"
         id={_.get(item, "id")}
         name={_.get(item, "value")}
-        size="small"
+        style={stModeGantt === _.get(item, "value") ? activeButton : {}}
         color="btn-primary"
         onClick={this._handleChangeMode}
       >
@@ -114,35 +174,47 @@ class TimeLines extends React.Component {
     const selectedItem = _.get(this.state, "selectedItem");
     const nonEditableName = _.get(this.state, "nonEditableName");
     const itemHeight = _.get(this.state, "itemHeight");
+    const styleMain = {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "center",
+      width: "100%",
+      height: "auto"
+    };
 
     return (
       <Container maxWidth="xl" style={{ marginTop: "10px" }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <div>
-              <IconButton aria-label="add" onClick={this._handleAddTimeline}>
-                <AddIcon />
-              </IconButton>
-              <IconButton aria-label="delete">
-                <DeleteIcon />
-              </IconButton>
-
-              {this._renderGroupButton()}
-            </div>
+        <Grid container spacing={1}>
+          <Grid item xs={4}>
+            <IconButton
+              style={{ backgroundColor: "#007bff" }}
+              size="small"
+              aria-label="add"
+              onClick={this._handleAddTimeline}
+            >
+              <AddIcon />
+            </IconButton>
           </Grid>
-          <Grid item xs={12}>
-            <TimeLine
-              data={[...data]}
-              links={listLinks}
-              // onHorizonChange={this.onHorizonChange}
-              onSelectItem={this._onSelectItem}
-              onUpdateTask={this._onUpdateTask}
-              onCreateLink={this._onCreateLink}
-              mode={timelineMode}
-              itemheight={itemHeight}
-              selectedItem={selectedItem}
-              nonEditableName={nonEditableName}
-            />
+          <Grid item xs={8}>
+            {this._renderGroupButton()}
+          </Grid>
+
+          <Grid xs={12}>
+            <div className="time-line-container" style={styleMain}>
+              <TimeLine
+                data={[...data]}
+                links={listLinks}
+                onHorizonChange={this.onHorizonChange}
+                onSelectItem={this._onSelectItem}
+                onUpdateTask={this._onUpdateTask}
+                onCreateLink={this._onCreateLink}
+                mode={timelineMode}
+                itemheight={itemHeight}
+                selectedItem={selectedItem}
+                nonEditableName={nonEditableName}
+              />
+            </div>
           </Grid>
         </Grid>
       </Container>
@@ -157,10 +229,10 @@ TimeLines.propTypes = {
 const mapStateToProps = state => {
   const { ganttReducer } = state;
   const { data, links, selectedItem } = ganttReducer;
-
+  // console.log(links);
   return {
-    data: data,
-    links: [...links],
+    data: [...data],
+    links: links,
     selectedItem: selectedItem
   };
 };
