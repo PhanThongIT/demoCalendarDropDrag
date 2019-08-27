@@ -25,14 +25,39 @@ const config = {
     titleWeb: "Calendar Demo"
   },
   actionTypes: {
+    // Event
     ADD_EVENT: "ADD_EVENT",
     UPDATE_EVENT: "UPDATE_EVENT",
     REMOVE_EVENT: "REMOVE_EVENT",
+    // Gantt
     ADD_TIMELINE: "ADD_TIMELINE",
     REMOVE_TIMELINE: "REMOVE_TIMELINE",
     UPDATE_TIMELINE: "UPDATE_TIMELINE",
-    SELECT_TIMELINE: "SELECT_TIMELINE"
+    SELECT_TIMELINE: "SELECT_TIMELINE",
+    CREATE_LINK: "CREATE_LINK"
   },
+  modeGantt: [
+    {
+      id: 0,
+      value: "month",
+      text: "Month"
+    },
+    {
+      id: 1,
+      value: "day",
+      text: "Day"
+    },
+    {
+      id: 2,
+      value: "week",
+      text: "Week"
+    },
+    {
+      id: 3,
+      value: "year",
+      text: "Year"
+    }
+  ],
   type: {
     REMOVE: "REMOVE",
     EDIT: "EDIT",

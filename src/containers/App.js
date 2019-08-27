@@ -8,9 +8,8 @@ import {
   Switch,
   HashRouter
 } from "react-router-dom";
-import Event from "../containers/event/index";
-import TimeLine from "../containers/timeline";
 import { connect } from "react-redux";
+import routers from "../routes";
 
 class App extends React.Component {
   constructor(props) {
@@ -21,8 +20,16 @@ class App extends React.Component {
   render() {
     return (
       <Router basename="/">
-        <Route exact path="/" component={TimeLine} />
-        <Route exact path="/timeline" component={TimeLine} />
+        {routers.map(({ path, component, exact }, index) => {
+          return (
+            <Route
+              key={index}
+              exact={exact === true ? true : false}
+              path={path}
+              component={component}
+            />
+          );
+        })}
       </Router>
     );
   }
