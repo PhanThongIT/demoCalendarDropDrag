@@ -55,10 +55,12 @@ const timeline = (
       break;
     case _.get(config.actionTypes, "CREATE_LINK"):
       const dataItem = _.get(action.payload, "item");
+      const idStart = _.get(dataItem.start, "task.id");
+      const idEnd = _.get(dataItem.end, "task.id");
       const newLink = {
         id: _.get(dataItem, "id"),
-        start: _.get(dataItem.start.task, "id"),
-        end: _.get(dataItem.end.task, "id")
+        start: idStart,
+        end: idEnd
       };
 
       return Object.assign({}, state, {

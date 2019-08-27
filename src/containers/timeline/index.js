@@ -51,7 +51,6 @@ class TimeLines extends React.Component {
     const propsData = _.get(this.props, "data");
     const nxtPropsData = _.get(nextProps, "data");
 
-    console.log("Props", nxtPropLinks, nxtPropsData);
     if (propLinks !== nxtPropLinks || propsData !== nxtPropsData) {
       return true;
     }
@@ -59,6 +58,11 @@ class TimeLines extends React.Component {
   }
 
   componentDidUpdate() {
+    this._handleCustomScreen();
+    this._handleRemoveLink();
+  }
+
+  _handleCustomScreen = () => {
     const heightMainEle = document.getElementsByClassName(
       "time-line-container"
     );
@@ -66,10 +70,9 @@ class TimeLines extends React.Component {
     const screenHeight = screen.height - 120;
 
     if (heightMain && heightMain.clientHeight >= screenHeight) {
-      console.log(heightMain.clientHeight, screenHeight);
       heightMain.style.height = `${screenHeight}px`;
     }
-  }
+  };
 
   _fixedGridContent = () => {
     const gridEle = document.getElementsByClassName("timeLine-side-main");
@@ -77,6 +80,20 @@ class TimeLines extends React.Component {
 
     if (gridTimeLine && isMobile) {
       gridTimeLine.style.width = "50px";
+    }
+  };
+
+  _handleRemoveLink = () => {
+    const linkEle = document.getElementsByClassName("timeline-link");
+    const propLinks = _.get(this.props, "links");
+    const lengthLinks = _.get(propLinks, "length");
+    const lengthEle = _.get(linkEle, "length");
+
+    if (lengthLinks < lengthEle) {
+      const link = _.get(linkEle, `[${lengthLinks}]`);
+      if (link && lengthEle > 0) {
+        link.setAttribute("hidden", true);
+      }
     }
   };
 
@@ -121,8 +138,11 @@ class TimeLines extends React.Component {
   };
 
   _onCreateLink = item => {
-    console.log(item);
-    if (this.state.errorLink === false) {
+    const idStart = _.get(item.start, "task.id");
+    const idEnd = _.get(item.end, "task.id");
+    if (idStart === idEnd || !idStart) {
+      return;
+    } else if (this.state.errorLink === false) {
       const fnDispatch = _.get(this.props, "dispatch");
       if (item && typeof fnDispatch === "function") {
         fnDispatch(createLink(item));
@@ -229,7 +249,6 @@ TimeLines.propTypes = {
 const mapStateToProps = state => {
   const { ganttReducer } = state;
   const { data, links, selectedItem } = ganttReducer;
-  // console.log(links);
   return {
     data: [...data],
     links: links,
