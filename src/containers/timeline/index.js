@@ -15,6 +15,7 @@ import {
 } from "../../actions/gantt";
 import config from "../../../config";
 import { isMobile, isTablet } from "react-device-detect";
+import styles from "./style.js";
 
 class TimeLines extends React.Component {
   constructor(props) {
@@ -22,10 +23,8 @@ class TimeLines extends React.Component {
     this.state = {
       data: [],
       // links:
-      selectedItem: null,
       timelineMode: "",
       nonEditableName: false,
-      itemHeight: 35,
       errorLink: false
     };
   }
@@ -45,18 +44,6 @@ class TimeLines extends React.Component {
     this.setState({ timelineMode: modeGantt });
   }
 
-  shouldComponentUpdate(nextProps, nextStates) {
-    const propLinks = _.get(this.props, "links");
-    const nxtPropLinks = _.get(nextProps, "links");
-    const propsData = _.get(this.props, "data");
-    const nxtPropsData = _.get(nextProps, "data");
-
-    if (propLinks !== nxtPropLinks || propsData !== nxtPropsData) {
-      return true;
-    }
-    return false;
-  }
-
   componentDidUpdate() {
     this._handleCustomScreen();
     this._handleRemoveLink();
@@ -67,7 +54,8 @@ class TimeLines extends React.Component {
       "time-line-container"
     );
     const heightMain = _.get(heightMainEle, "[0]");
-    const screenHeight = screen.height - 120;
+    const screenHeight =
+      screen.height - _.get(config.enums, "HEIGHT_HEADER_TIMELINE");
 
     if (heightMain && heightMain.clientHeight >= screenHeight) {
       heightMain.style.height = `${screenHeight}px`;
@@ -151,11 +139,6 @@ class TimeLines extends React.Component {
   };
 
   _renderButton = (item, index) => {
-    const activeButton = {
-      backgroundColor: "bisque",
-      borderColor: "bisque",
-      color: "black"
-    };
     const stModeGantt = _.get(this.state, "timelineMode");
 
     return (
@@ -165,7 +148,7 @@ class TimeLines extends React.Component {
         className="btn btn-outline-primary btn-sm ml-1"
         id={_.get(item, "id")}
         name={_.get(item, "value")}
-        style={stModeGantt === _.get(item, "value") ? activeButton : {}}
+        style={stModeGantt === _.get(item, "value") ? styles.activeButton : {}}
         color="btn-primary"
         onClick={this._handleChangeMode}
       >
@@ -191,17 +174,8 @@ class TimeLines extends React.Component {
     const data = _.get(this.props, "data");
     const listLinks = _.get(this.props, "links");
     const timelineMode = _.get(this.state, "timelineMode");
-    const selectedItem = _.get(this.state, "selectedItem");
+    const selectedItem = _.get(this.props, "selectItem");
     const nonEditableName = _.get(this.state, "nonEditableName");
-    const itemHeight = _.get(this.state, "itemHeight");
-    const styleMain = {
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "flex-start",
-      alignItems: "center",
-      width: "100%",
-      height: "auto"
-    };
 
     return (
       <Container maxWidth="xl" style={{ marginTop: "10px" }}>
@@ -221,7 +195,10 @@ class TimeLines extends React.Component {
           </Grid>
 
           <Grid xs={12}>
-            <div className="time-line-container" style={styleMain}>
+            <div
+              className="time-line-container"
+              style={_.get(styles, "styleMain")}
+            >
               <TimeLine
                 data={[...data]}
                 links={listLinks}
@@ -230,7 +207,7 @@ class TimeLines extends React.Component {
                 onUpdateTask={this._onUpdateTask}
                 onCreateLink={this._onCreateLink}
                 mode={timelineMode}
-                itemheight={itemHeight}
+                itemheight={_.get(config.enums, "HEIGHT_TASK_ITEM")}
                 selectedItem={selectedItem}
                 nonEditableName={nonEditableName}
               />
@@ -248,11 +225,11 @@ TimeLines.propTypes = {
 
 const mapStateToProps = state => {
   const { ganttReducer } = state;
-  const { data, links, selectedItem } = ganttReducer;
+  const { data, links, selectItem } = ganttReducer;
   return {
     data: [...data],
     links: links,
-    selectedItem: selectedItem
+    selectItem: selectItem
   };
 };
 export default connect(mapStateToProps)(TimeLines);

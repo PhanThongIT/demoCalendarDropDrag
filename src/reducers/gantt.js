@@ -66,7 +66,7 @@ const timeline = (
       return Object.assign({}, state, {
         data: [...state.data],
         links: [newLink, ...state.links],
-        selectItem: newLink
+        selectItem: { ...newLink }
       });
       break;
 

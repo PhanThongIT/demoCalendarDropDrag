@@ -173,4 +173,83 @@ ReactJS: https://github.com/fullcalendar/fullcalendar-react
 Calendar boostrap: https://fullcalendar.io/docs/bootstrap-theme
 ```
 
+11. Redux - Timeline - Gantt Chart:
+
+```js
+using library: react-gantt-timeline
+Install: npm install react-gantt-timeline
+Support: Touch - drag and drop (mobile web/ tablet)
+Responsive: Tablet/mobile web/Desktop devices.
+```
+
+Using:
+
+```js
+<TimeLine
+  data={[...data]} // prop data from reducer (type: Object array)
+  links={listLinks} // prop data from reducer (type: Object array)
+  onHorizonChange={this.onHorizonChange} // Support Changed list task
+  onSelectItem={this._onSelectItem} // Handle event select task/ link
+  onUpdateTask={this._onUpdateTask} // Handle event drag, drop, resize task
+  onCreateLink={this._onCreateLink} // Handle event create link connect bettween tasks
+  mode={timelineMode} // Mode timeline: day, month, week, year
+  itemheight={_.get(config.enums, "HEIGHT_TASK_ITEM")} // Edit height task (default 35)
+  selectedItem={selectedItem} // prop data get from reducer (type: Object)
+  nonEditableName={nonEditableName}
+/>
+```
+
+Example function handle \_onSelectItem()
+
+```js
+class Timeline extends React.Component {
+  _onSelectItem = item => {
+    const fnDispatch = _.get(this.props, "dispatch");
+    if (item && typeof fnDispatch === "function") {
+      fnDispatch(selectItem(item));
+    }
+  };
+
+  render() {
+    //Something code...
+  }
+}
+
+Timeline.propTypes = {
+  dispatch: PropTypes.func.isRequired
+};
+```
+
+Example handle css/style/set mode timeline:
+
+```js
+componentDidUpdate() {
+  //Something code css/ javascript get height element
+}
+```
+
+Init data from reducer:
+
+```js
+// Create state:
+state = {
+  data: [],
+  links: [],
+  selectItem: {}
+};
+```
+
+Handle event selectItem reducer:
+
+```js
+case _.get(config.actionTypes, "SELECT_TIMELINE"): // type action
+      const actionPayload = action.payload;
+      return {
+        data: state.data,
+        links: state.links,
+        selectItem: _.get(actionPayload, "item") // data selected
+      };
+break;
+```
+
 # CALENDAR DEMO - REACTJS - REDUX
