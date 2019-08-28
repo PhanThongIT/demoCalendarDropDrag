@@ -4,8 +4,7 @@ import _ from "lodash";
 import TimeLine from "react-gantt-timeline";
 import { Container, Grid } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { Button, Fab, IconButton } from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
+import { IconButton } from "@material-ui/core";
 import { connect } from "react-redux";
 import {
   addTimeline,
@@ -14,7 +13,7 @@ import {
   createLink
 } from "../../actions/gantt";
 import config from "../../../config";
-import { isMobile, isTablet } from "react-device-detect";
+import { isMobile } from "react-device-detect";
 import styles from "./style.js";
 
 class TimeLines extends React.Component {
@@ -22,7 +21,6 @@ class TimeLines extends React.Component {
     super(props);
     this.state = {
       data: [],
-      // links:
       timelineMode: "",
       nonEditableName: false,
       errorLink: false
@@ -38,7 +36,7 @@ class TimeLines extends React.Component {
       const defaultMode = _.get(listModeGantts[0], "value");
       modeGantt = defaultMode;
     } else {
-      modeGantt = "month";
+      modeGantt = _.get(config.default, "modeGantt");
     }
 
     this.setState({ timelineMode: modeGantt });
@@ -47,7 +45,18 @@ class TimeLines extends React.Component {
   componentDidUpdate() {
     this._handleCustomScreen();
     this._handleRemoveLink();
+    this._setTitleListTimeline();
   }
+
+  _setTitleListTimeline = () => {
+    const titleTimelineEle = document.getElementsByClassName(
+      "timeLine-side-title"
+    );
+    const titleTimeline = _.get(titleTimelineEle, "[0]");
+    if (titleTimeline) {
+      titleTimeline.innerText = _.get(config.textContent, "titleTimeLine");
+    }
+  };
 
   _handleCustomScreen = () => {
     const heightMainEle = document.getElementsByClassName(
@@ -67,7 +76,10 @@ class TimeLines extends React.Component {
     const gridTimeLine = _.get(gridEle, "[0]");
 
     if (gridTimeLine && isMobile) {
-      gridTimeLine.style.width = "50px";
+      gridTimeLine.style.width = `${_.get(
+        config.enums,
+        "WIDTH_IS_MOBILE_TASK_LIST"
+      )}px`;
     }
   };
 
@@ -88,7 +100,7 @@ class TimeLines extends React.Component {
   _handleAddTimeline = e => {
     e.preventDefault();
     const dateStart = new Date();
-    const dateEnd = new Date("Aug 30 2019 17:40:08 GMT+0700");
+    const dateEnd = new Date(_.get(config.default, "createdEndTime"));
     const data = {
       start: dateStart,
       end: dateEnd
@@ -115,7 +127,7 @@ class TimeLines extends React.Component {
         0
       ) {
         this.setState({ errorLink: true }, () => {
-          window.alert("Valid timeline!");
+          window.alert(_.get(config.messages, "validTimeline"));
           return;
         });
       } else {

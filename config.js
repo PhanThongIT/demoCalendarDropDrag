@@ -19,10 +19,12 @@ const config = {
   ],
   messages: {
     requiredMessageTitle: "Title is required!",
-    errorRangeLimitDate: "Time start must not be greater than the time end"
+    errorRangeLimitDate: "Time start must not be greater than the time end",
+    validTimeline: "Not valid timeline!"
   },
   textContent: {
-    titleWeb: "Calendar Demo"
+    titleWeb: "Calendar Demo",
+    titleTimeLine: "Task lists"
   },
   actionTypes: {
     // Event
@@ -69,7 +71,12 @@ const config = {
   },
   enums: {
     HEIGHT_TASK_ITEM: 35,
-    HEIGHT_HEADER_TIMELINE: 120
+    HEIGHT_HEADER_TIMELINE: 120,
+    WIDTH_IS_MOBILE_TASK_LIST: 50
+  },
+  default: {
+    createdEndTime: "Aug 31 2019 17:40:08 GMT+0700",
+    modeGantt: "month"
   }
 };
 
