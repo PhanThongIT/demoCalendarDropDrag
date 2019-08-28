@@ -4,7 +4,7 @@ import _ from "lodash";
 import TimeLine from "react-gantt-timeline";
 import { Container, Grid } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { IconButton } from "@material-ui/core";
+import { IconButton, Icon } from "@material-ui/core";
 import { connect } from "react-redux";
 import {
   addTimeline,
@@ -23,7 +23,8 @@ class TimeLines extends React.Component {
       data: [],
       timelineMode: "",
       nonEditableName: false,
-      errorLink: false
+      errorLink: false,
+      hideList: true
     };
   }
 
@@ -182,6 +183,48 @@ class TimeLines extends React.Component {
     this.setState({ timelineMode: name });
   };
 
+  _onClickShowList = e => {
+    e.preventDefault();
+    const gridEle = document.getElementsByClassName("timeLine-side-main");
+    const gridTimeLine = _.get(gridEle, "[0]");
+    const stHideList = _.get(this.state, "hideList");
+
+    if (stHideList === true && gridTimeLine) {
+      gridTimeLine.setAttribute("hidden", "true");
+    } else if (stHideList === false && gridTimeLine) {
+      gridTimeLine.removeAttribute("hidden");
+    }
+
+    this.setState({ hideList: !stHideList });
+  };
+
+  _handleHideList = () => {
+    const stHideList = _.get(this.state, "hideList");
+    if (stHideList === true) {
+      return (
+        <IconButton
+          style={{ backgroundColor: "bisque" }}
+          size="small"
+          onClick={this._onClickShowList}
+          style={{ marginLeft: "5px" }}
+        >
+          <Icon className="fa fa-bars" />
+        </IconButton>
+      );
+    } else {
+      return (
+        <IconButton
+          style={{ backgroundColor: "bisque" }}
+          size="small"
+          onClick={this._onClickShowList}
+          style={{ marginLeft: "5px" }}
+        >
+          <Icon className="fa fa-list-alt" />
+        </IconButton>
+      );
+    }
+  };
+
   render() {
     const data = _.get(this.props, "data");
     const listLinks = _.get(this.props, "links");
@@ -194,13 +237,15 @@ class TimeLines extends React.Component {
         <Grid container spacing={1}>
           <Grid item xs={4}>
             <IconButton
-              style={{ backgroundColor: "#007bff" }}
+              style={{ backgroundColor: "bisque" }}
               size="small"
               aria-label="add"
               onClick={this._handleAddTimeline}
             >
-              <AddIcon />
+              <Icon className="fa fa-plus-circle" color="action" />
             </IconButton>
+
+            {this._handleHideList()}
           </Grid>
           <Grid item xs={8}>
             {this._renderGroupButton()}
@@ -238,6 +283,7 @@ TimeLines.propTypes = {
 const mapStateToProps = state => {
   const { ganttReducer } = state;
   const { data, links, selectItem } = ganttReducer;
+  console.log(links);
   return {
     data: [...data],
     links: links,
