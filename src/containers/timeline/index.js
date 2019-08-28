@@ -194,7 +194,7 @@ class TimeLines extends React.Component {
             {this._renderGroupButton()}
           </Grid>
 
-          <Grid xs={12}>
+          <Grid item xs={12}>
             <div
               className="time-line-container"
               style={_.get(styles, "styleMain")}
