@@ -70,6 +70,25 @@ const timeline = (
       });
       break;
 
+    case _.get(config.actionTypes, "REMOVE_LINK"):
+      const dataLink = action.payload;
+      state.links.map((itemLink, index) => {
+        if (
+          itemLink.start === _.get(dataLink.data, "start") &&
+          itemLink.end === _.get(dataLink.data, "end")
+        ) {
+          console.log("data", dataLink, itemLink);
+          state.links.splice(index, 1);
+          return;
+        }
+      });
+      return Object.assign({}, state, {
+        data: [...state.data],
+        links: [...state.links],
+        selectItem: null
+      });
+      break;
+
     default:
       return state;
   }

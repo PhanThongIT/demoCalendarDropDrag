@@ -10,7 +10,8 @@ import {
   addTimeline,
   selectItem,
   updateTask,
-  createLink
+  createLink,
+  removeLink
 } from "../../actions/gantt";
 import config from "../../../config";
 import { isMobile } from "react-device-detect";
@@ -123,6 +124,7 @@ class TimeLines extends React.Component {
   _onUpdateTask = (item, dataChanged) => {
     const fnDispatch = _.get(this.props, "dispatch");
     if (item && dataChanged && typeof fnDispatch === "function") {
+      const itemData = item;
       if (
         new Date(`${dataChanged.end}`) - new Date(`${dataChanged.start}`) <
         0
@@ -132,9 +134,39 @@ class TimeLines extends React.Component {
           return;
         });
       } else {
-        this.setState({ errorLink: false });
-        fnDispatch(updateTask(item, dataChanged));
+        this._handleRemoveLink(itemData, dataChanged);
+        this.setState({ errorLink: false }, () => {
+          fnDispatch(updateTask(item, dataChanged));
+        });
       }
+    }
+  };
+
+  _handleRemoveLink = (item, dataChanged) => {
+    const links = _.get(this.props, "links");
+    const listTask = _.get(this.props, "data");
+    const idSelectedTask = _.get(item, "id");
+
+    if (!_.isEmpty(links) && !_.isEmpty(item) && !_.isEmpty(listTask)) {
+      links.map((itemLink, index) => {
+        if (itemLink.end === idSelectedTask) {
+          listTask.map((itemTask, idx) => {
+            if (
+              itemLink.start === itemTask.id &&
+              new Date(`${itemTask.end}`) - new Date(`${dataChanged.end}`) > 0
+            ) {
+              const fnDispatch = _.get(this.props, "dispatch");
+              if (typeof fnDispatch === "function") {
+                const data = {
+                  start: itemTask.id,
+                  end: idSelectedTask
+                };
+                fnDispatch(removeLink(data));
+              }
+            }
+          });
+        }
+      });
     }
   };
 
@@ -283,7 +315,6 @@ TimeLines.propTypes = {
 const mapStateToProps = state => {
   const { ganttReducer } = state;
   const { data, links, selectItem } = ganttReducer;
-  console.log(links);
   return {
     data: [...data],
     links: links,

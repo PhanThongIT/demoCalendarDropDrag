@@ -43,3 +43,12 @@ export const createLink = item => {
     payload: { item: item }
   };
 };
+
+export const removeLink = data => {
+  return {
+    type: _.get(config.actionTypes, "REMOVE_LINK"),
+    payload: {
+      data: { ...data }
+    }
+  };
+};
