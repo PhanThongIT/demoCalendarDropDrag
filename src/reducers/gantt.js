@@ -77,7 +77,6 @@ const timeline = (
           itemLink.start === _.get(dataLink.data, "start") &&
           itemLink.end === _.get(dataLink.data, "end")
         ) {
-          console.log("data", dataLink, itemLink);
           state.links.splice(index, 1);
           return;
         }

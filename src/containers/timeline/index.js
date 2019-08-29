@@ -4,7 +4,7 @@ import _ from "lodash";
 import TimeLine from "react-gantt-timeline";
 import { Container, Grid } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import DeleteForeverOutlined from "@material-ui/icons/DeleteForeverOutlined";
+import { DeleteTwoTone, DeleteForeverTwoTone } from "@material-ui/icons";
 import { IconButton, Icon } from "@material-ui/core";
 import { connect } from "react-redux";
 import {
@@ -157,6 +157,33 @@ class TimeLines extends React.Component {
       !_.isEmpty(listTask)
     ) {
       links.map((itemLink, index) => {
+        if (itemLink.start === idSelectedTask) {
+          listTask.map((itemTask, index) => {
+            if (
+              itemTask.id === itemLink.end &&
+              new Date(`${itemTask.end}`) - new Date(`${dataChanged.end}`) < 0
+            ) {
+              const fnDispatch = _.get(this.props, "dispatch");
+              if (typeof fnDispatch === "function") {
+                const data = {
+                  start: idSelectedTask,
+                  end: itemTask.id
+                };
+                fnDispatch(removeLink(data));
+              }
+            }
+          });
+        }
+      });
+    }
+
+    if (
+      disbleRemove === true &&
+      !_.isEmpty(links) &&
+      !_.isEmpty(item) &&
+      !_.isEmpty(listTask)
+    ) {
+      links.map((itemLink, index) => {
         if (itemLink.end === idSelectedTask) {
           listTask.map((itemTask, idx) => {
             if (
@@ -168,6 +195,22 @@ class TimeLines extends React.Component {
                 const data = {
                   start: itemTask.id,
                   end: idSelectedTask
+                };
+                fnDispatch(removeLink(data));
+              }
+            }
+          });
+        } else if (itemLink.start === idSelectedTask) {
+          listTask.map((itemTask, index) => {
+            if (
+              itemTask.id === itemLink.end &&
+              new Date(`${itemTask.end}`) - new Date(`${dataChanged.end}`) < 0
+            ) {
+              const fnDispatch = _.get(this.props, "dispatch");
+              if (typeof fnDispatch === "function") {
+                const data = {
+                  start: idSelectedTask,
+                  end: itemTask.id
                 };
                 fnDispatch(removeLink(data));
               }
@@ -279,9 +322,8 @@ class TimeLines extends React.Component {
         onClick={this._onChangeModeRemove}
         style={{ marginLeft: "5px" }}
       >
-        <Icon
-          className={disbleRemove === true ? "fa fa-trash" : "fa fa-undo-alt"}
-        />
+        {disbleRemove === true && <DeleteTwoTone fontSize="default" />}
+        {disbleRemove === false && <DeleteForeverTwoTone fontSize="default" />}
       </IconButton>
     );
   };
