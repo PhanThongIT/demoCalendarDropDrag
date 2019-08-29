@@ -4,6 +4,7 @@ import _ from "lodash";
 import TimeLine from "react-gantt-timeline";
 import { Container, Grid } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
+import DeleteForeverOutlined from "@material-ui/icons/DeleteForeverOutlined";
 import { IconButton, Icon } from "@material-ui/core";
 import { connect } from "react-redux";
 import {
@@ -25,7 +26,8 @@ class TimeLines extends React.Component {
       timelineMode: "",
       nonEditableName: false,
       errorLink: false,
-      hideList: true
+      hideList: true,
+      disbleRemove: true
     };
   }
 
@@ -146,8 +148,14 @@ class TimeLines extends React.Component {
     const links = _.get(this.props, "links");
     const listTask = _.get(this.props, "data");
     const idSelectedTask = _.get(item, "id");
+    const disbleRemove = _.get(this.state, "disbleRemove");
 
-    if (!_.isEmpty(links) && !_.isEmpty(item) && !_.isEmpty(listTask)) {
+    if (
+      disbleRemove === true &&
+      !_.isEmpty(links) &&
+      !_.isEmpty(item) &&
+      !_.isEmpty(listTask)
+    ) {
       links.map((itemLink, index) => {
         if (itemLink.end === idSelectedTask) {
           listTask.map((itemTask, idx) => {
@@ -173,9 +181,20 @@ class TimeLines extends React.Component {
   _onCreateLink = item => {
     const idStart = _.get(item.start, "task.id");
     const idEnd = _.get(item.end, "task.id");
-    if (idStart === idEnd || !idStart) {
+    const disbleRemove = _.get(this.state, "disbleRemove");
+    const timeEndByItemStart = _.get(item, "start.task.end");
+    const timeEndByItemEnd = _.get(item, "end.task.end");
+    const errorLink = _.get(this.state, "errorLink");
+
+    if (idStart === idEnd) {
       return;
-    } else if (this.state.errorLink === false) {
+    } else if (
+      new Date(`${timeEndByItemStart}`) - new Date(`${timeEndByItemEnd}`) > 0 &&
+      disbleRemove === true
+    ) {
+      window.alert("Not valid link!");
+      return;
+    } else if (errorLink === false) {
       const fnDispatch = _.get(this.props, "dispatch");
       if (item && typeof fnDispatch === "function") {
         fnDispatch(createLink(item));
@@ -232,29 +251,39 @@ class TimeLines extends React.Component {
 
   _handleHideList = () => {
     const stHideList = _.get(this.state, "hideList");
-    if (stHideList === true) {
-      return (
-        <IconButton
-          style={{ backgroundColor: "bisque" }}
-          size="small"
-          onClick={this._onClickShowList}
-          style={{ marginLeft: "5px" }}
-        >
-          <Icon className="fa fa-bars" />
-        </IconButton>
-      );
-    } else {
-      return (
-        <IconButton
-          style={{ backgroundColor: "bisque" }}
-          size="small"
-          onClick={this._onClickShowList}
-          style={{ marginLeft: "5px" }}
-        >
-          <Icon className="fa fa-list-alt" />
-        </IconButton>
-      );
-    }
+    return (
+      <IconButton
+        style={{ backgroundColor: "bisque" }}
+        size="small"
+        onClick={this._onClickShowList}
+        style={{ marginLeft: "5px" }}
+      >
+        <Icon
+          className={stHideList === true ? "fa fa-bars" : "fa fa-list-alt"}
+        />
+      </IconButton>
+    );
+  };
+
+  _onChangeModeRemove = () => {
+    const disbleRemove = _.get(this.state, "disbleRemove");
+    this.setState({ disbleRemove: !disbleRemove });
+  };
+
+  _renderButtonRemoveLink = () => {
+    const disbleRemove = _.get(this.state, "disbleRemove");
+    return (
+      <IconButton
+        style={{ backgroundColor: "bisque" }}
+        size="small"
+        onClick={this._onChangeModeRemove}
+        style={{ marginLeft: "5px" }}
+      >
+        <Icon
+          className={disbleRemove === true ? "fa fa-trash" : "fa fa-undo-alt"}
+        />
+      </IconButton>
+    );
   };
 
   render() {
@@ -278,6 +307,7 @@ class TimeLines extends React.Component {
             </IconButton>
 
             {this._handleHideList()}
+            {this._renderButtonRemoveLink()}
           </Grid>
           <Grid item xs={8}>
             {this._renderGroupButton()}
